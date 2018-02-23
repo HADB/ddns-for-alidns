@@ -76,6 +76,7 @@ def main():
     logger.setLevel(logging.INFO)
     logger.addHandler(handler)
 
+    logger.info('------------------------------')
     config = get_config()
     acs_client = client.AcsClient(config['access_key_id'], config['access_key_secret'], config['region_id'])
     current_ip = get_public_ip()
