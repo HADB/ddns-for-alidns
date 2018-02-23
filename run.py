@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-#-*- coding:utf-8 -*-
+# -*- coding: utf-8 -*- 
 
 import json
 import logging
@@ -7,7 +6,6 @@ from logging.handlers import TimedRotatingFileHandler
 from urllib.request import urlopen
 from aliyunsdkalidns.request.v20150109 import (AddDomainRecordRequest, DescribeDomainRecordsRequest, UpdateDomainRecordRequest)
 from aliyunsdkcore import client
-
 
 # 获取配置
 def get_config():
@@ -71,7 +69,7 @@ def get_public_ip():
 
 # 主函数
 def main():
-    handler = TimedRotatingFileHandler('logs/ddns-for-alidns.log', when='D', interval=1, backupCount=30)
+    handler = TimedRotatingFileHandler('logs/ddns-for-alidns.log', when='D', interval=1, backupCount=30, encoding='utf-8')
     formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s', '%Y-%m-%d %H:%M:%S')
     handler.setFormatter(formatter)
     logger = logging.getLogger()
