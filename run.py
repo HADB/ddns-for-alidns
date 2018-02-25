@@ -72,7 +72,8 @@ def get_public_ip():
 
 # 主函数
 def main():
-    handler = TimedRotatingFileHandler('logs/ddns-for-alidns.log', when='D', interval=1, backupCount=30, encoding='utf-8')
+    handler = TimedRotatingFileHandler('logs/ddns-for-alidns.log', when='midnight', interval=1, backupCount=0, encoding='utf-8')
+    handler.suffix = '%Y%m%d.log'
     formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s', '%Y-%m-%d %H:%M:%S')
     handler.setFormatter(formatter)
     logger = logging.getLogger()
