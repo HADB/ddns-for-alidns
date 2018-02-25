@@ -1,11 +1,14 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 
 import json
 import logging
-from logging.handlers import TimedRotatingFileHandler
-from urllib.request import urlopen
-from aliyunsdkalidns.request.v20150109 import (AddDomainRecordRequest, DescribeDomainRecordsRequest, UpdateDomainRecordRequest)
 from aliyunsdkcore import client
+from aliyunsdkcore.acs_exception.exceptions import ClientException, ServerException
+from aliyunsdkalidns.request.v20150109 import (AddDomainRecordRequest, DescribeDomainRecordsRequest, UpdateDomainRecordRequest)
+from logging.handlers import TimedRotatingFileHandler
+from urllib.error import HTTPError, URLError
+from urllib.request import urlopen
+
 
 # 获取配置
 def get_config():
@@ -64,7 +67,7 @@ def update_record(acs_client, record_id, rr, domain_name, current_ip, ttl):
 
 # 获取外网IP
 def get_public_ip():
-    return urlopen('http://v4.ipv6-test.com/api/myip.php', timeout=60).read().decode()
+    return urlopen('http://v4.ipv6-test.com/api/myip.php', timeout=10).read().decode()
 
 
 # 主函数
@@ -79,19 +82,29 @@ def main():
     logger.info('------------------------------')
     config = get_config()
     acs_client = client.AcsClient(config['access_key_id'], config['access_key_secret'], config['region_id'])
-    current_ip = get_public_ip()
-    for domain in config['domains']:
-        rr, domain_name = get_domain_parts(domain)
-        record_id, value = get_record(acs_client, domain_name, rr)
-        if record_id == None:
-            add_record(acs_client, record_id, rr, domain_name, current_ip, config['ttl'])
-            logging.info(domain + '添加解析为' + current_ip)
-        else:
-            if value != current_ip:
-                update_record(acs_client, record_id, rr, domain_name, current_ip, config['ttl'])
-                logging.info(domain + '更新解析为' + current_ip)
+    try:
+        current_ip = get_public_ip()
+        for domain in config['domains']:
+            rr, domain_name = get_domain_parts(domain)
+            record_id, value = get_record(acs_client, domain_name, rr)
+            if record_id == None:
+                add_record(acs_client, record_id, rr, domain_name, current_ip, config['ttl'])
+                logging.info(domain + '添加解析为' + current_ip)
             else:
-                logging.info(domain + '无需更新解析')
+                if value != current_ip:
+                    update_record(acs_client, record_id, rr, domain_name, current_ip, config['ttl'])
+                    logging.info(domain + '更新解析为' + current_ip)
+    except HTTPError as e:
+        logger.error(e.code + ': ' + e.reason)
+    except URLError as e:
+        logger.error(e.reason)
+    except ClientException as e:
+        logger.error(e.error_code + ': ' + e.message)
+    except ServerException as e:
+        logger.error(e.error_code + ': ' + e.message)
+    except:
+        logger.error('未知异常')
+        raise
 
 
 if __name__ == '__main__':
