@@ -6,6 +6,7 @@ from aliyunsdkcore import client
 from aliyunsdkcore.acs_exception.exceptions import ClientException, ServerException
 from aliyunsdkalidns.request.v20150109 import (AddDomainRecordRequest, DescribeDomainRecordsRequest, UpdateDomainRecordRequest)
 from logging.handlers import TimedRotatingFileHandler
+from socket import timeout
 from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
 
@@ -72,7 +73,7 @@ def get_public_ip():
 
 # 主函数
 def main():
-    handler = TimedRotatingFileHandler('logs/ddns-for-alidns.log', when='midnight', interval=1, backupCount=0, encoding='utf-8')
+    handler = TimedRotatingFileHandler('logs/ddns-for-alidns', when='midnight', interval=1, backupCount=0, encoding='utf-8')
     handler.suffix = '%Y%m%d.log'
     formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s', '%Y-%m-%d %H:%M:%S')
     handler.setFormatter(formatter)
@@ -80,7 +81,6 @@ def main():
     logger.setLevel(logging.INFO)
     logger.addHandler(handler)
 
-    logger.info('------------------------------')
     config = get_config()
     acs_client = client.AcsClient(config['access_key_id'], config['access_key_secret'], config['region_id'])
     try:
@@ -99,14 +99,16 @@ def main():
         logger.error(e.code + ': ' + e.reason)
     except URLError as e:
         logger.error(e.reason)
+    except timeout:
+        logger.error('socket timed out')
     except ClientException as e:
         logger.error(e.error_code + ': ' + e.message)
     except ServerException as e:
         logger.error(e.error_code + ': ' + e.message)
     except:
-        logger.error('未知异常')
+        logger.error('其他异常')
         raise
-
+    logger.info('SUCCESS')
 
 if __name__ == '__main__':
     main()
