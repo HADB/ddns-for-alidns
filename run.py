@@ -6,7 +6,8 @@ from aliyunsdkcore import client
 from aliyunsdkcore.acs_exception.exceptions import ClientException, ServerException
 from aliyunsdkalidns.request.v20150109 import (AddDomainRecordRequest, DescribeDomainRecordsRequest, UpdateDomainRecordRequest)
 from logging.handlers import TimedRotatingFileHandler
-from socket import timeout
+from socket import error as SocketError
+from socket import timeout as SocketTimeout
 from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
 
@@ -95,20 +96,29 @@ def main():
                 if value != current_ip:
                     update_record(acs_client, record_id, rr, domain_name, current_ip, config['ttl'])
                     logging.info(domain + '更新解析为' + current_ip)
+        logger.info('SUCCESS')
     except HTTPError as e:
-        logger.error(e.code + ': ' + e.reason)
+        logger.error('http error: ' + str(e.code) + ': ' + str(e.reason))
+        return 0
     except URLError as e:
-        logger.error(e.reason)
-    except timeout:
+        logger.error('url error: ' + str(e.reason))
+        return 0
+    except SocketTimeout:
         logger.error('socket timed out')
+        return 0
+    except SocketError as e:
+        logger.error('socket error: ' + str(e))
+        return 0
     except ClientException as e:
-        logger.error(e.error_code + ': ' + e.message)
+        logger.error('aliyun client error: ' + str(e.error_code) + ': ' + str(e.message))
+        return 0
     except ServerException as e:
-        logger.error(e.error_code + ': ' + e.message)
+        logger.error('aliyun server error: ' + str(e.error_code) + ': ' + str(e.message))
+        return 0
     except:
         logger.error('其他异常')
         raise
-    logger.info('SUCCESS')
+
 
 if __name__ == '__main__':
     main()
