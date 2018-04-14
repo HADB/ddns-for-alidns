@@ -22,6 +22,8 @@
 2. ssh进入群晖，通过`sudo -i`提升权限，并执行如下脚本（python3的安装目录会有些不同，需要改成你所设置的安装目录）：
 
     ```python
+    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+    python3 get-pip.py
     ln -s /volume3/@appstore/py3k/usr/local/bin/pip3 /usr/local/bin/pip3
     pip3 install aliyun-python-sdk-core
     pip3 install aliyun-python-sdk-alidns
