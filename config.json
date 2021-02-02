@@ -2,6 +2,6 @@
     "access_key_id": "",
     "access_key_secret": "",
     "region_id": "cn-hangzhou",
-    "ttl": 1,
+    "ttl": 600,
     "domains": ["ddns-test.monkey.run", "not-exist.monkey.run"]
 }
