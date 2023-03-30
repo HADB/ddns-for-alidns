@@ -100,11 +100,11 @@ def main():
             rr, domain_name = get_domain_parts(domain)
             record_id, value = get_record(acs_client, domain_name, rr)
             if record_id == None:
-                # add_record(acs_client, record_id, rr, domain_name, current_ip, config['ttl'])
+                add_record(acs_client, record_id, rr, domain_name, current_ip, config['ttl'])
                 logging.info(domain + "添加解析为" + current_ip)
             else:
                 if value != current_ip:
-                    # update_record(acs_client, record_id, rr, domain_name, current_ip, config['ttl'])
+                    update_record(acs_client, record_id, rr, domain_name, current_ip, config['ttl'])
                     logging.info(domain + "更新解析为" + current_ip)
         except HTTPError as e:
             logger.error("http error: " + str(e.code) + ": " + str(e.reason))
