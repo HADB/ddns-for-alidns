@@ -3,5 +3,5 @@
     "access_key_secret": "",
     "region_id": "cn-hangzhou",
     "ttl": 600,
-    "domains": ["ddns-test.monkey.run", "not-exist.monkey.run"]
+    "domains": ["www.yourdomain.com", "another.yourdomain.com"]
 }

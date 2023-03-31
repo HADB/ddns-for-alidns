@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import json
-import logging
-from logging.handlers import TimedRotatingFileHandler
-from socket import error as SocketError
-from socket import timeout as SocketTimeout
-from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
 
 from aliyunsdkalidns.request.v20150109 import (
@@ -14,7 +9,8 @@ from aliyunsdkalidns.request.v20150109 import (
     UpdateDomainRecordRequest,
 )
 from aliyunsdkcore import client
-from aliyunsdkcore.acs_exception.exceptions import ClientException, ServerException
+
+from utils import log
 
 
 # 获取配置
@@ -81,53 +77,30 @@ def get_public_ip():
 
 # 主函数
 def main():
-    handler = TimedRotatingFileHandler(
-        "logs/ddns-for-alidns", when="midnight", interval=1, backupCount=0, encoding="utf-8"
-    )
-    handler.suffix = "%Y%m%d.log"
-    formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s", "%Y-%m-%d %H:%M:%S")
-    handler.setFormatter(formatter)
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
-    logger.addHandler(handler)
+    try:
+        config = get_config()
+        acs_client = client.AcsClient(config["access_key_id"], config["access_key_secret"], config["region_id"])
+        current_ip = get_public_ip()
 
-    config = get_config()
-    acs_client = client.AcsClient(config["access_key_id"], config["access_key_secret"], config["region_id"])
+        for domain in config["domains"]:
+            try:
+                rr, domain_name = get_domain_parts(domain)
+                record_id, value = get_record(acs_client, domain_name, rr)
+                if record_id == None:
+                    add_record(acs_client, record_id, rr, domain_name, current_ip, config["ttl"])
+                    log.info(domain + "添加解析为" + current_ip)
+                else:
+                    if value != current_ip:
+                        update_record(acs_client, record_id, rr, domain_name, current_ip, config["ttl"])
+                        log.info(domain + "更新解析为" + current_ip)
 
-    current_ip = get_public_ip()
-    for domain in config["domains"]:
-        try:
-            rr, domain_name = get_domain_parts(domain)
-            record_id, value = get_record(acs_client, domain_name, rr)
-            if record_id == None:
-                add_record(acs_client, record_id, rr, domain_name, current_ip, config['ttl'])
-                logging.info(domain + "添加解析为" + current_ip)
-            else:
-                if value != current_ip:
-                    update_record(acs_client, record_id, rr, domain_name, current_ip, config['ttl'])
-                    logging.info(domain + "更新解析为" + current_ip)
-        except HTTPError as e:
-            logger.error("http error: " + str(e.code) + ": " + str(e.reason))
-            return 0
-        except URLError as e:
-            logger.error("url error: " + str(e.reason))
-            return 0
-        except SocketTimeout:
-            logger.error("socket timed out")
-            return 0
-        except SocketError as e:
-            logger.error("socket error: " + str(e))
-            return 0
-        except ClientException as e:
-            logger.error("aliyun client error: " + str(e.error_code) + ": " + str(e.message))
-            return 0
-        except ServerException as e:
-            logger.error("aliyun server error: " + str(e.error_code) + ": " + str(e.message))
-            return 0
-        except:
-            logger.error("其他异常")
-            raise
-    logger.info("SUCCESS")
+            except Exception as e:
+                log.error(f"{domain} {str(e)}")
+
+        log.debug("SUCCESS")
+
+    except Exception as e:
+        log.error(f"GLOBAL {str(e)}")
 
 
 if __name__ == "__main__":

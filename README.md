@@ -10,30 +10,27 @@
 2. 安装第三方库
 
     ```
-    pip3 install aliyun-python-sdk-core
-    pip3 install aliyun-python-sdk-alidns
+    pip3 install -r requirements.txt
     ```
 
 3. 配置crontab定时脚本
 
 ## 群晖
 
-1. 在群晖的套件中心中安装好python3
-2. ssh进入群晖，通过`sudo -i`提升权限，并执行如下脚本（python3的安装目录会有些不同，需要改成你所设置的安装目录）：
+1. 进入群晖“控制面板”->“任务计划”，新增一个“触发的任务”，事件是“开机”，执行以下脚本，目的是安装依赖库，并且防止系统更新后库丢失：
 
-    ```python
-    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-    python3 get-pip.py
-    ln -s /volume3/@appstore/py3k/usr/local/bin/pip3 /usr/local/bin/pip3
-    pip3 install aliyun-python-sdk-core
-    pip3 install aliyun-python-sdk-alidns
+    ```bash
+    wget https://bootstrap.pypa.io/get-pip.py
+    python get-pip.py
+    pip install -i https://pypi.tuna.tsinghua.edu.cn/simple aliyun-python-sdk-core
+    pip install -i https://pypi.tuna.tsinghua.edu.cn/simple aliyun-python-sdk-alidns
     ```
 
-3. 进入群晖“控制面板”->“任务计划”，配置好名字、执行时间、频率等，设置命令为如下代码（脚本目录需要改成你代码放置的目录）：
+2. 进入群晖“控制面板”->“任务计划”，配置好名字、执行时间、频率等，设置命令为如下代码（脚本目录需要改成你代码放置的目录）：
 
-    ```python
+    ```bash
     cd /volume3/scripts/ddns-for-alidns
-    python3 run.py
+    python3 main.py
     ```
 
 
