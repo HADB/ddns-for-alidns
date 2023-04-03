@@ -1,7 +1,6 @@
 {
-    "access_key_id": "",
-    "access_key_secret": "",
+    "access_key_id": "******",
+    "access_key_secret": "******",
     "region_id": "cn-hangzhou",
-    "ttl": 600,
-    "domains": ["www.yourdomain.com", "another.yourdomain.com"]
+    "domains": [{ "domain": "demo.yourdomain.com", "ttl": 600, "desc": "DEMO" }]
 }

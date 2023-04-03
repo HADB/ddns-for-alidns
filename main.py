@@ -39,9 +39,9 @@ def get_record(acs_client, domain_name, rr):
         "Record"
     ]
     for record in records:
-        if record["RR"] == rr:
-            return record["RecordId"], record["Value"]
-    return None, None
+        if record["RR"] == rr and record["Type"] == "A":
+            return record["RecordId"], record["Value"], record["TTL"]
+    return None, None, None
 
 
 # 添加记录
@@ -82,17 +82,18 @@ def main():
         acs_client = client.AcsClient(config["access_key_id"], config["access_key_secret"], config["region_id"])
         current_ip = get_public_ip()
 
-        for domain in config["domains"]:
+        for domain_config in config["domains"]:
+            domain = domain_config["domain"]
+            config_ttl = domain_config["ttl"]
             try:
                 rr, domain_name = get_domain_parts(domain)
-                record_id, value = get_record(acs_client, domain_name, rr)
+                record_id, record_ip, record_ttl = get_record(acs_client, domain_name, rr)
                 if record_id == None:
-                    add_record(acs_client, record_id, rr, domain_name, current_ip, config["ttl"])
-                    log.info(domain + "添加解析为" + current_ip)
-                else:
-                    if value != current_ip:
-                        update_record(acs_client, record_id, rr, domain_name, current_ip, config["ttl"])
-                        log.info(domain + "更新解析为" + current_ip)
+                    add_record(acs_client, record_id, rr, domain_name, current_ip, config_ttl)
+                    log.info(f"{domain} 添加解析:{current_ip}, TTL:{config_ttl}")
+                elif record_ip != current_ip or record_ttl != config_ttl:
+                    update_record(acs_client, record_id, rr, domain_name, current_ip, config_ttl)
+                    log.info(f"{domain} 更新解析:{current_ip}, TTL:{config_ttl}")
 
             except Exception as e:
                 log.error(f"{domain} {str(e)}")
