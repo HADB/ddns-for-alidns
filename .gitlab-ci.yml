@@ -1,0 +1,18 @@
+image: docker:latest
+
+variables:
+    PROJECT_NAME: 'ddns-for-alidns'
+
+stages:
+    - build
+
+docker-build:
+    stage: build
+    image: docker:latest
+    script:
+        - docker build -t $PROJECT_NAME:latest .
+        - if [ $(docker ps -aq --filter name=$PROJECT_NAME) ]; then docker rm -f $PROJECT_NAME;fi
+    only:
+        - tags
+    tags:
+        - synology

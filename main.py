@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-
 import json
+import time
 from urllib.request import urlopen
 
 from aliyunsdkalidns.request.v20150109 import (
@@ -76,7 +76,7 @@ def get_public_ip():
 
 
 # 主函数
-def main():
+def run():
     try:
         config = get_config()
         acs_client = client.AcsClient(config["access_key_id"], config["access_key_secret"], config["region_id"])
@@ -105,4 +105,6 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    while True:
+        run()
+        time.sleep(60)
