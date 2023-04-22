@@ -8,18 +8,14 @@ log_formatter = logging.Formatter("%(asctime)s [%(levelname)-8s] %(message)s")
 
 stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(log_formatter)
-stream_handler.setLevel(logging.INFO)
 
 file_handler = TimedRotatingFileHandler(
-    "logs/ddns-for-alidns",
+    "logs/log",
     when="midnight",
-    interval=1,
     backupCount=365,
     encoding="utf-8",
 )
-file_handler.suffix = "%Y%m%d.log"
 file_handler.setFormatter(log_formatter)
-file_handler.setLevel(logging.INFO)
 
 logger = logging.getLogger()
 logger.setLevel(level=logging.INFO)
