@@ -9,15 +9,10 @@ from aliyunsdkalidns.request.v20150109 import (
     UpdateDomainRecordRequest,
 )
 from aliyunsdkcore import client
+from yuanfen import logger
+from yuanfen.config import Config
 
-from utils import log
-
-
-# 获取配置
-def get_config():
-    with open("config.json") as config_file:
-        config = json.load(config_file)
-        return config
+config = Config("config.json")
 
 
 # 从域名中获取RR和主域名
@@ -78,7 +73,6 @@ def get_public_ip():
 # 主函数
 def run():
     try:
-        config = get_config()
         acs_client = client.AcsClient(config["access_key_id"], config["access_key_secret"], config["region_id"])
         current_ip = get_public_ip()
 
@@ -90,18 +84,18 @@ def run():
                 record_id, record_ip, record_ttl = get_record(acs_client, domain_name, rr)
                 if record_id == None:
                     add_record(acs_client, record_id, rr, domain_name, current_ip, config_ttl)
-                    log.info(f"{domain} 添加解析:{current_ip}, TTL:{config_ttl}")
+                    logger.info(f"{domain} 添加解析:{current_ip}, TTL:{config_ttl}")
                 elif record_ip != current_ip or record_ttl != config_ttl:
                     update_record(acs_client, record_id, rr, domain_name, current_ip, config_ttl)
-                    log.info(f"{domain} 更新解析:{current_ip}, TTL:{config_ttl}")
+                    logger.info(f"{domain} 更新解析:{current_ip}, TTL:{config_ttl}")
 
             except Exception as e:
-                log.error(f"{domain} {str(e)}")
+                logger.error(f"{domain} {str(e)}")
 
-        log.debug("SUCCESS")
+        logger.debug("SUCCESS")
 
     except Exception as e:
-        log.error(f"GLOBAL {str(e)}")
+        logger.error(f"GLOBAL {str(e)}")
 
 
 if __name__ == "__main__":
