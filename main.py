@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+import os
 import time
 from urllib.request import urlopen
 
@@ -12,7 +13,7 @@ from aliyunsdkcore import client
 from yuanfen import logger
 from yuanfen.config import Config
 
-config = Config("config.json")
+config = Config(os.path.abspath("config.json"))
 
 
 # 从域名中获取RR和主域名
