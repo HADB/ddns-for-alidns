@@ -99,6 +99,7 @@ def run():
 
 
 if __name__ == "__main__":
+    logger.info("程序启动")
     while True:
         run()
         time.sleep(60)
