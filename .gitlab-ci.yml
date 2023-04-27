@@ -13,4 +13,4 @@ docker-build:
     only:
         - tags
     tags:
-        - synology
+        - nuc
