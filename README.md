@@ -1,5 +1,8 @@
 # 自动更新DNS解析（阿里云解析）
 
+## (Deprecated) 已废弃
+* 此项目不再维护，请移步 https://github.com/NewFuture/DDNS
+
 ## 配置说明
 
 1. 配置好config.json中的`access_key_id`和`access_key_secret`，可以在阿里云中找到
