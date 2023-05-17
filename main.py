@@ -68,7 +68,7 @@ def update_record(acs_client, record_id, rr, domain_name, current_ip, ttl):
 
 # 获取外网IP
 def get_public_ip():
-    return urlopen("http://v4.ipv6-test.com/api/myip.php", timeout=10).read().decode()
+    return urlopen("https://myip4.ipip.net/s", timeout=10).read().decode().strip()
 
 
 # 主函数
